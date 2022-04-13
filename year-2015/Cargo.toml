@@ -1,0 +1,19 @@
+[package]
+name = "year-2015"
+version = "0.1.0"
+edition = "2021"
+description = "Solution for AoC 2015"
+authors = ["Dariusz Dajka <dariusz.dajka@gmail.com>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]]
+name = "day01"
+path = "src/day01.rs"
+
+[[bin]]
+name = "day02"
+path = "src/day02.rs"
+
+[dependencies]
+common = { path = "../common" }
