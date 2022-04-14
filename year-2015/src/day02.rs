@@ -80,3 +80,20 @@ fn main() -> Result<()> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn calculate_paper_and_ribbon_needed() {
+        let gift = Gift {
+            length: 1,
+            width: 2,
+            height: 3,
+        };
+
+        assert_eq!(24, gift.paper_needed());
+        assert_eq!(12, gift.ribbon_needed());
+    }
+}

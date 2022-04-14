@@ -38,3 +38,26 @@ fn main() -> Result<()> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn calculates_floor() {
+        let input = ")))(()((()(()(";
+        let floor = calculate_floor(input);
+        let expected_floor = 2;
+
+        assert_eq!(expected_floor, floor);
+    }
+
+    #[test]
+    fn calculates_basement_position() {
+        let input = "(())()())(()()())))(()()(";
+        let basement_position = calculate_basement_position(input);
+        let expected_position = 9;
+
+        assert_eq!(expected_position, basement_position);
+    }
+}
