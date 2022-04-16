@@ -10,6 +10,17 @@ enum Direction {
     Right,
 }
 
+impl Direction {
+    pub fn vector(&self) -> (isize, isize) {
+        match self {
+            Direction::Up => (0, 1),
+            Direction::Down => (0, -1),
+            Direction::Left => (-1, 0),
+            Direction::Right => (1, 0),
+        }
+    }
+}
+
 impl From<char> for Direction {
     fn from(c: char) -> Self {
         match c {
@@ -29,60 +40,51 @@ struct Position {
 }
 
 impl Position {
-    pub fn move_pos(&mut self, direction: Direction) {
-        match direction {
-            Direction::Up => {
-                self.y += 1;
-            }
-            Direction::Down => {
-                self.y -= 1;
-            }
-            Direction::Left => {
-                self.x -= 1;
-            }
-            Direction::Right => {
-                self.x += 1;
-            }
-        }
+    pub fn r#move(&mut self, direction: Direction) {
+        let (x, y) = direction.vector();
+
+        self.x += x;
+        self.y += y;
     }
 }
 
 fn houses_visited(input: &str) -> usize {
-    let mut house_positions = HashSet::new();
     let mut santas_position = Position::default();
 
-    house_positions.insert(santas_position);
+    let house_positions: HashSet<_> = input
+        .chars()
+        .map(|symbol| {
+            let direction = Direction::from(symbol);
+            santas_position.r#move(direction);
 
-    for symbol in input.chars() {
-        let direction = Direction::from(symbol);
-        santas_position.move_pos(direction);
-
-        house_positions.insert(santas_position);
-    }
+            santas_position
+        })
+        .chain(std::iter::once(Position::default())) // include the initial position as well
+        .collect();
 
     house_positions.len()
 }
 
 fn houses_visited_with_robo_santa(input: &str) -> usize {
-    let mut house_positions = HashSet::new();
     let mut santas_position = Position::default();
     let mut robos_position = Position::default();
 
-    house_positions.insert(santas_position);
+    let house_positions: HashSet<_> = input
+        .chars()
+        .enumerate()
+        .map(|(n, symbol)| {
+            let direction = Direction::from(symbol);
 
-    for (n, symbol) in input.chars().enumerate() {
-        let direction = Direction::from(symbol);
-
-        let new_position = if n % 2 == 0 {
-            santas_position.move_pos(direction);
-            santas_position
-        } else {
-            robos_position.move_pos(direction);
-            robos_position
-        };
-
-        house_positions.insert(new_position);
-    }
+            if n % 2 == 0 {
+                santas_position.r#move(direction);
+                santas_position
+            } else {
+                robos_position.r#move(direction);
+                robos_position
+            }
+        })
+        .chain(std::iter::once(Position::default())) // include the initial position as well
+        .collect();
 
     house_positions.len()
 }
