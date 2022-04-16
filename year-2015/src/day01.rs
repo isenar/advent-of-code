@@ -1,5 +1,4 @@
-use common::anyhow::anyhow;
-use common::{read_input_lines, Day, Result, Year};
+use common::{read_single_input_line, Day, Result, Year};
 
 fn delta(floor_symbol: char) -> i64 {
     match floor_symbol {
@@ -27,9 +26,7 @@ fn calculate_basement_position(input: &str) -> usize {
 }
 
 fn main() -> Result<()> {
-    let input = read_input_lines(Year(2015), Day(1))?
-        .next()
-        .ok_or_else(|| anyhow!("Failed to parse input"))??;
+    let input = read_single_input_line(Year(2015), Day(1))?;
     let floor = calculate_floor(&input);
     let basement_pos = calculate_basement_position(&input);
 
