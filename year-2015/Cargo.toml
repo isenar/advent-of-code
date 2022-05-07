@@ -23,6 +23,11 @@ path = "src/day03.rs"
 name = "day04"
 path = "src/day04.rs"
 
+[[bin]]
+name = "day05"
+path = "src/day05.rs"
+
 [dependencies]
 common = { path = "../common" }
+itertools = "0.10.3"
 md5 = "0.7.0"
