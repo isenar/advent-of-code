@@ -1,5 +1,4 @@
-pub use anyhow;
-pub use anyhow::Result;
+pub use anyhow::{self, Error, Result};
 
 use std::fs::{read_to_string, File};
 use std::io::{BufRead, BufReader, Lines};
