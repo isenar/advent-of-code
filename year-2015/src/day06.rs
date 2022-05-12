@@ -1,5 +1,6 @@
 use common::anyhow::{anyhow, bail, Error};
 use common::{read_input_lines, Day, InputLines, Result, Year};
+use std::ops::{Add, Sub};
 
 use std::str::FromStr;
 
@@ -63,18 +64,50 @@ enum Action {
     TurnOff,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
-enum Light {
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+struct Brightness(usize);
+
+impl Add for Brightness {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self(self.0 + rhs.0)
+    }
+}
+
+impl Sub for Brightness {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self(self.0.saturating_sub(rhs.0))
+    }
+}
+
+#[derive(Debug, Default, Copy, Clone)]
+struct Light {
+    status: LightStatus,    // for part 1
+    brightness: Brightness, // for part 2
+}
+
+#[derive(Debug, Clone, Copy)]
+enum LightStatus {
     On,
     Off,
 }
 
+impl Default for LightStatus {
+    fn default() -> Self {
+        Self::Off
+    }
+}
+
 impl Light {
     pub fn toggle(&mut self) {
-        *self = match self {
-            Light::On => Light::Off,
-            Light::Off => Light::On,
+        self.status = match self.status {
+            LightStatus::On => LightStatus::Off,
+            LightStatus::Off => LightStatus::On,
         };
+        self.brightness.0 += 2;
     }
 }
 
@@ -88,39 +121,47 @@ impl Grid {
 
     pub fn new() -> Self {
         Self {
-            lights: vec![vec![Light::Off; Self::SIZE]; Self::SIZE],
+            lights: vec![vec![Light::default(); Self::SIZE]; Self::SIZE],
         }
     }
 
     #[cfg(test)]
     pub fn new_lit() -> Self {
         Self {
-            lights: vec![vec![Light::On; Self::SIZE]; Self::SIZE],
+            lights: vec![
+                vec![
+                    Light {
+                        status: LightStatus::On,
+                        brightness: Brightness::default()
+                    };
+                    Self::SIZE
+                ];
+                Self::SIZE
+            ],
         }
     }
 
-    pub fn modify(&mut self, command: Command) -> Result<()> {
+    pub fn apply(&mut self, command: Command) -> Result<()> {
         for x in command.start.x..=command.end.x {
             for y in command.start.y..=command.end.y {
+                let mut old_value = self.lights[x][y];
                 let new_value = match command.action {
                     Action::Toggle => {
-                        let mut old = self.lights[x][y];
-                        old.toggle();
+                        old_value.toggle();
 
-                        old
+                        old_value
                     }
-                    Action::TurnOn => Light::On,
-                    Action::TurnOff => Light::Off,
+                    Action::TurnOn => Light {
+                        status: LightStatus::On,
+                        brightness: old_value.brightness + Brightness(1),
+                    },
+                    Action::TurnOff => Light {
+                        status: LightStatus::Off,
+                        brightness: old_value.brightness - Brightness(1),
+                    },
                 };
 
-                let old_value = self
-                    .lights
-                    .get_mut(x)
-                    .ok_or_else(|| anyhow!("Failed to get x coord (={x})"))?
-                    .get_mut(y)
-                    .ok_or_else(|| anyhow!("Failed to get y coord (={y})"))?;
-
-                *old_value = new_value;
+                self.lights[x][y] = new_value;
             }
         }
 
@@ -131,8 +172,17 @@ impl Grid {
         self.lights
             .iter()
             .flatten()
-            .filter(|light| matches!(light, Light::On))
+            .filter(|light| matches!(light.status, LightStatus::On))
             .count()
+    }
+
+    pub fn total_brightness(&self) -> Brightness {
+        self.lights
+            .iter()
+            .flatten()
+            .fold(Brightness(0), |brightness, light| {
+                brightness + light.brightness
+            })
     }
 }
 
@@ -147,10 +197,11 @@ fn main() -> Result<()> {
     let mut grid = Grid::new();
 
     for command in commands {
-        grid.modify(command)?;
+        grid.apply(command)?;
     }
 
     println!("Lights on: {}", grid.lights_on_count());
+    println!("Total brightness: {:?}", grid.total_brightness().0);
 
     Ok(())
 }
@@ -167,7 +218,7 @@ mod tests {
             end: Point { x: 999, y: 999 },
             action: Action::TurnOn,
         };
-        grid.modify(command).unwrap();
+        grid.apply(command).unwrap();
 
         assert_eq!(1_000_000, grid.lights_on_count());
     }
@@ -180,7 +231,7 @@ mod tests {
             end: Point { x: 999, y: 0 },
             action: Action::Toggle,
         };
-        grid.modify(command).unwrap();
+        grid.apply(command).unwrap();
 
         assert_eq!(1000, grid.lights_on_count());
     }
@@ -193,8 +244,34 @@ mod tests {
             end: Point { x: 500, y: 500 },
             action: Action::TurnOff,
         };
-        grid.modify(command).unwrap();
+        grid.apply(command).unwrap();
 
         assert_eq!(1_000_000 - 4, grid.lights_on_count());
+    }
+
+    #[test]
+    fn increase_brightness_by_one() {
+        let mut grid = Grid::new();
+        let command = Command {
+            start: Point { x: 0, y: 0 },
+            end: Point { x: 0, y: 0 },
+            action: Action::TurnOn,
+        };
+        grid.apply(command).unwrap();
+
+        assert_eq!(Brightness(1), grid.total_brightness());
+    }
+
+    #[test]
+    fn toggling_all_lights_gives_2m_brigtness() {
+        let mut grid = Grid::new();
+        let command = Command {
+            start: Point { x: 0, y: 0 },
+            end: Point { x: 999, y: 999 },
+            action: Action::Toggle,
+        };
+        grid.apply(command).unwrap();
+
+        assert_eq!(Brightness(2_000_000), grid.total_brightness());
     }
 }
