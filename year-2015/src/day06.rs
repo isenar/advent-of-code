@@ -1,7 +1,7 @@
 use common::anyhow::{anyhow, bail, Error};
 use common::{read_input_lines, Day, InputLines, Result, Year};
-use std::ops::{Add, Sub};
 
+use std::ops::{Add, Sub};
 use std::str::FromStr;
 
 #[derive(Debug)]
@@ -64,7 +64,7 @@ enum Action {
     TurnOff,
 }
 
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, PartialEq, Eq)]
 struct Brightness(usize);
 
 impl Add for Brightness {
