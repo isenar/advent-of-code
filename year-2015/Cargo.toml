@@ -31,6 +31,10 @@ path = "src/day05.rs"
 name = "day06"
 path = "src/day06.rs"
 
+[[bin]]
+name = "day07"
+path = "src/day07.rs"
+
 [dependencies]
 common = { path = "../common" }
 itertools = "0.10.3"

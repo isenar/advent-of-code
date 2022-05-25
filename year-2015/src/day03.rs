@@ -2,7 +2,7 @@ use common::{read_single_input_line, Day, Result, Year};
 
 use std::collections::HashSet;
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum Direction {
     Up,
     Down,
