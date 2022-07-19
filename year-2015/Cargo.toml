@@ -7,34 +7,6 @@ authors = ["Dariusz Dajka <dariusz.dajka@gmail.com>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[[bin]]
-name = "day01"
-path = "src/day01.rs"
-
-[[bin]]
-name = "day02"
-path = "src/day02.rs"
-
-[[bin]]
-name = "day03"
-path = "src/day03.rs"
-
-[[bin]]
-name = "day04"
-path = "src/day04.rs"
-
-[[bin]]
-name = "day05"
-path = "src/day05.rs"
-
-[[bin]]
-name = "day06"
-path = "src/day06.rs"
-
-[[bin]]
-name = "day07"
-path = "src/day07.rs"
-
 [dependencies]
 common = { path = "../common" }
 itertools = "0.10.3"
